@@ -16,22 +16,22 @@ class DatesEvents
 {
 public:
 
-	//Äîáàâëåíèå ñîáûòèÿ äëÿ îïðåäåëåííîé äàòû
+	//Добавление события для определенной даты
 	void AddDateEvent(Date&_date, string event, string path);
 
-	//Óäàëåíèå îäíîãî ñîáûòèÿ ó âûáðàííîé äàòû
+	//Удаление одного события у выбранной даты
 	void DeletEventDate(Date&_date, string& event, string path);
 
-	//Óäàëåíèå âûáðàííîé äàòû âìåñòå ñî âñåìè ñîáûòèÿìè
+	//Удаление выбранной даты вместе со всеми событиями
 	void DeleteDate(Date&_date, string path);
 
-	//Ïîèñê äàòû è âûâîä âñåõ å¸ ñîáûòèé (çàðàíåå îòñîðòèðîâûâàííûõ)
+	//Поиск даты и вывод всех её событий
 	void findDateEvents(const Date& _date);
 	
-	//Çàãðóçêà äàííûõ èç ôàéëà â ñëîâàðü
+	//Загрузка данных из файла в словарь
 	void LoadDataFileInMap(const string& path);
 
-	//Îáíîâèòü ïîðÿäîê äàò è ñîáûòèé ôàéëà â ñîîòâåòñòâèè ñî ñëîâàðåì
+	//Обновить порядок дат и событий файла в соответствии со словарем
 	void UpdateTextFile(const string& path);
 	
 private:
