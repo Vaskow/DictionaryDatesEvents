@@ -1,7 +1,7 @@
 struct Day {
 	int value;
-	explicit Day(int new_value) { //äîáàâèëè explicit, ÷òîáû íåÿâíî êîíñòðóêòîð íå âûçûâàëñÿ
-		value = new_value;//ýòî ïîêàæåò, ãäå: äåíü, ìåñÿö èëè ãîä.
+	explicit Day(int new_value) { //добавили explicit, чтобы неявно конструктор не вызывался
+		value = new_value; //это покажет, где: день, месяц или год.
 	}
 };
 
