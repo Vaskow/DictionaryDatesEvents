@@ -1,27 +1,27 @@
 #include "DateEvents.h"
 
-//Äîáàâëåíèå ñîáûòèÿ äëÿ îïðåäåëåííîé äàòû
+//Добавление события для определенной даты
 void DatesEvents::AddDateEvent(Date&_date, string event, string path)
 {
-	int resultAdd = 0; //ñëîâàðü áåç èçìåíåíèÿ
+	int resultAdd = 0; //словарь без изменения
 	auto newDate = DateEvents.find(_date);
 
-	if (newDate == DateEvents.end()) //íåò òàêîé äàòû
+	if (newDate == DateEvents.end()) //нет такой даты
 	{
-		DateEvents[_date].push_back(event); //äîáàâëåíèå íîâîé äàòû è ñîáûòèÿ
-		resultAdd = 1; //äîáàâëåíà äàòà
+		DateEvents[_date].push_back(event); //добавление новой даты и события
+		resultAdd = 1;
 	}
-	else //óæå åñòü äàòà
+	else //уже есть дата
 	{
 		auto newEvent = find(DateEvents[_date].begin(), DateEvents[_date].end(), event);
 		if (newEvent == DateEvents[_date].end())
 		{
-			DateEvents[_date].push_back(event); //äîáàâëåíèå íîâîãî ñîáûòèÿ
-			resultAdd = 2; //äîáàâëåíî ñîáûòèå
+			DateEvents[_date].push_back(event); //добавление нового события
+			resultAdd = 2;
 		}
 	}
 
-	if (path != "") //äîáàâëåíèå â ôàéë íå òðåáóåòñÿ
+	if (path != "") //добавление в файл не требуется
 	{
 		switch (resultAdd)
 		{
@@ -38,14 +38,14 @@ void DatesEvents::AddDateEvent(Date&_date, string event, string path)
 			break;
 		}
 
-		UpdateTextFile(path); //îáíîâëåíèå òåêñòîâîãî ôàéëà
+		UpdateTextFile(path); //обновление текстового файла
 	}
 }
 
-//Óäàëåíèå îäíîãî ñîáûòèÿ ó âûáðàííîé äàòû
+//Удаление одного события у выбранной даты
 void DatesEvents::DeletEventDate(Date&_date, string& event, string path)
 {
-	//Ïîèñê è óäàëåíèå ñîáûòèÿ äëÿ êîíêðåòíîé äàòû
+	//Поиск и удаление события для конкретной даты
 	auto delEvent = find(DateEvents[_date].begin(), DateEvents[_date].end(), event);
 	if (delEvent != DateEvents[_date].end())
 	{
@@ -54,7 +54,7 @@ void DatesEvents::DeletEventDate(Date&_date, string& event, string path)
 			_date.month << "." << _date.year << endl;
 		if (DateEvents[_date].empty())
 		{
-			DateEvents.erase(_date); //óäàëåíèå îáúåêòà data, åñëè ó íåãî íåò ñîáûòèé
+			DateEvents.erase(_date); //удаление объекта data, если у него нет событий
 			cout << "Date deleted: " << _date.day << "." << _date.month << "." << _date.year << endl;
 		}
 	}
@@ -64,14 +64,14 @@ void DatesEvents::DeletEventDate(Date&_date, string& event, string path)
 		return;
 	}
 
-	//îáíîâëåíèå òåêñòîâîãî ôàéëà
+	//обновление текстового файла
 	UpdateTextFile(path);
 }
 
-//Óäàëåíèå âûáðàííîé äàòû âìåñòå ñî âñåìè ñîáûòèÿìè
+//Удаление выбранной даты вместе со всеми событиями
 void DatesEvents::DeleteDate(Date&_date, string path)
 {
-	//Ïîèñê è óäàëåíèå äàòû èç ñëîâàðÿ
+	//Поиск и удаление даты из словаря
 	auto delDate{ find_if(DateEvents.begin(), DateEvents.end(), [_date](const pair<Date, vector<string>>& dEv)
 	{return dEv.first == _date; }) };
 
@@ -86,11 +86,11 @@ void DatesEvents::DeleteDate(Date&_date, string path)
 		return;
 	}
 
-	//îáíîâëåíèå òåêñòîâîãî ôàéëà
+	//обновление текстового файла
 	UpdateTextFile(path);
 }
 
-//Ïîèñê äàòû è âûâîä âñåõ å¸ ñîáûòèé
+//Поиск даты и вывод всех её событий
 void DatesEvents::findDateEvents(const Date& _date)
 {
 	auto FindDate{ find_if(DateEvents.begin(), DateEvents.end(),
@@ -103,7 +103,7 @@ void DatesEvents::findDateEvents(const Date& _date)
 	}
 	else
 	{
-		//Ïåðåä âûâîäîì ñîáûòèé èõ íóæíî îòñîðòèðîâàòü
+		//Перед выводом событий их нужно отсортировать
 		sort(FindDate->second.begin(), FindDate->second.end());
 
 		cout << "Find Date = " << FindDate->first.day << "." <<
@@ -118,14 +118,14 @@ void DatesEvents::findDateEvents(const Date& _date)
 
 }
 
-//Çàãðóçêà äàííûõ èç ôàéëà â ñëîâàðü
+//Загрузка данных из файла в словарь
 void DatesEvents::LoadDataFileInMap(const string& path)
 {
 	ifstream input(path);
 	if (input)
 	{
 		string line;
-		string path = ""; //ïóñòîé ïóòü, ÷òîáû íå ïåðåïèñûâàòü ôàéë
+		string path = ""; //пустой путь, чтобы не переписывать файл
 		while (getline(input, line))
 		{
 			string _event1;
@@ -137,16 +137,16 @@ void DatesEvents::LoadDataFileInMap(const string& path)
 			iss >> month;
 			iss >> year;
 			Date date1 = { Day(day), Month(month), Year(year) };
-			AddDateEvent(date1, _event1, path); //äîáàâëåíèå äàò è èõ ñîáûòèé èç ôàéëà
+			AddDateEvent(date1, _event1, path); //добавление дат и их событий из файла
 		}
 	}
 }
 
-//Îáíîâèòü ïîðÿäîê äàò è ñîáûòèé ôàéëà â ñîîòâåòñòâèè ñî ñëîâàðåì
+//Обновить порядок дат и событий файла в соответствии со словарем
 void DatesEvents::UpdateTextFile(const string& path)
 {
 	ofstream output;
-	output.open(path); //ïåðåçàïèñü ôàéëà
+	output.open(path); //перезапись файла
 	if (output.is_open())
 	{
 		for (auto cur_data : DateEvents)
