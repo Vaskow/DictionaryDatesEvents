@@ -24,18 +24,7 @@ Date& Date::operator=(const Date& _date)
 	year = _date.year;
 	return *this;
 }
-bool Date::operator==(const Date& _date)
-{
-	if (this == &_date) {
-		return true;
-	}
-	else if (day == _date.day && month == _date.month && year == _date.year)
-	{
-		return true;
-	}
-	else return false;
 
-}
 bool Date::operator==(const Date& _date) const
 {
 	if (this == &_date) {
@@ -46,7 +35,6 @@ bool Date::operator==(const Date& _date) const
 		return true;
 	}
 	else return false;
-
 }
 
 bool Date::operator<(const Date& date1) const
@@ -74,9 +62,9 @@ uint16_t Date::GetYear() const {
 	return year;
 }
 
-bool VerificDate(uint16_t day, uint16_t month, uint16_t year)
+bool Date::VerificDate(uint16_t day, uint16_t month, uint16_t year)
 {
-	if (year > 2022)
+	if (year > 2023)
 	{
 		return false;
 	}
@@ -130,20 +118,4 @@ bool VerificDate(uint16_t day, uint16_t month, uint16_t year)
 	}
 
 	return false;
-
-}
-
-void PrintSliceDate(uint16_t slice_date, bool end)
-{
-	char point = '.';
-	if (end) { point = ' '; }
-
-	if (slice_date < 10) { cout << "0" << slice_date << point; }
-	else { cout << slice_date << point; }
-}
-
-void WriteFileSliceDate(uint16_t slice_date, ofstream &ofs)
-{
-	if (slice_date < 10) { ofs << "0" << slice_date << " "; }
-	else { ofs << slice_date << " "; }
 }

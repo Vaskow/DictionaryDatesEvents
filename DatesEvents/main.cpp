@@ -4,16 +4,12 @@ int main()
 {
 	setlocale(LC_ALL, "ru");
 
-	// Поток для работы с файлом
+	//Путь до файла
 	const string path = "Date_Base1.txt";
-	ofstream output;
-	output.open(path, ios::app); 
-
-	// Массив дат и их событий
-	DatesEvents datesEvents;
-
-	datesEvents.LoadDataFileInMap(path); //Считывание данных из файла
-
+	//Создание массива дат и их событий
+	DatesEvents datesEvents(path);
+	
+	cout << endl;
 
 	cout << "Доступные функции (формат даты: день.месяц.год): " << endl <<
 		" Для добавления события ввести: Add Дата Событие" << endl <<
@@ -42,10 +38,9 @@ int main()
 		}
 		else if (cmd == "Print")
 		{
-			ReadFileInConsole(path);
+			datesEvents.ReadFileInConsole();
 			continue;
 		}
-
 
 		string typeCmd, dateCmd, eventCmd;
 
@@ -66,7 +61,6 @@ int main()
 			continue;
 		}
 		
-
 		int startSubStr = 0;
 		int endSubStr = 0;
 		int indArr = 0;
@@ -87,10 +81,9 @@ int main()
 			}
 		}
 
-
 		cout << endl;
 
-		bool goodDate = VerificDate(arrDate[0], arrDate[1], arrDate[2]);
+		bool goodDate = Date::VerificDate(arrDate[0], arrDate[1], arrDate[2]);
 
 		if (goodDate == false)
 		{
@@ -102,22 +95,19 @@ int main()
 
 		if (typeCmd == "Add")
 		{
-			datesEvents.AddDateEvent(date, eventCmd, path);
+			datesEvents.AddDateEvent(date, eventCmd);
 		}
 		else if (typeCmd == "Del" && eventCmd != "")
 		{
-			datesEvents.DeletEventDate(date, eventCmd, path);
+			datesEvents.DeletEventDate(date, eventCmd);
 		}
 		else if (typeCmd == "Del" && eventCmd == "")
 		{
-			datesEvents.DeleteDate(date, path);
+			datesEvents.DeleteDate(date);
 		}
 		else if (typeCmd == "Find")
 		{
-			datesEvents.findDateEvents(date);
+			datesEvents.FindDateEvents(date);
 		}
 	}
-
-	output.close();
-
 }

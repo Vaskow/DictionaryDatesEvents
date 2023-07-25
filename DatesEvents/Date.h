@@ -1,7 +1,4 @@
 #include <cstdint>
-#include <iostream>
-#include <fstream>
-using namespace std;
 
 class Date
 {
@@ -10,7 +7,6 @@ public:
 	Date(uint16_t new_day, uint16_t new_month, uint16_t new_year);
 
 	Date& operator=(const Date& _date);
-	bool operator==(const Date& _date);
 	bool operator==(const Date& _date) const;
 	bool operator<(const Date& date1) const;
 
@@ -18,12 +14,11 @@ public:
 	uint16_t GetMonth() const;
 	uint16_t GetDay() const;
 
+	//Проверка корректности даты
+	static bool VerificDate(uint16_t day, uint16_t month, uint16_t year);
+
 private:
 	uint16_t day;
 	uint16_t month;
 	uint16_t year;
 };
-
-bool VerificDate(uint16_t day, uint16_t month, uint16_t year);
-void PrintSliceDate(uint16_t slice_date, bool end);
-void WriteFileSliceDate(uint16_t slice_date, ofstream& ofs);

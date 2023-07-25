@@ -1,7 +1,7 @@
 #include "DateEvents.h"
 
 //Добавление события для определенной даты
-void DatesEvents::AddDateEvent(Date& _date, string event, string path)
+void DatesEvents::AddDateEvent(Date& _date, string event)
 {
 	int resultAdd = 0; //словарь без изменения
 	auto newDate = DateEvents.find(_date);
@@ -21,7 +21,7 @@ void DatesEvents::AddDateEvent(Date& _date, string event, string path)
 		}
 	}
 
-	if (path != "") //добавление в файл не требуется
+	if (path != "") //добавление в файл
 	{
 		switch (resultAdd)
 		{
@@ -29,8 +29,6 @@ void DatesEvents::AddDateEvent(Date& _date, string event, string path)
 			cout << "Event alredy added" << endl;
 			return;
 		case 1:
-			//cout << "Date added: " << _date.GetDay() << "." << _date.GetMonth() << "." << _date.GetYear() <<
-			//	" with event: " << event << endl;
 			cout << "Date added: ";
 			PrintSliceDate(_date.GetDay(),false);
 			PrintSliceDate(_date.GetMonth(), false);
@@ -38,8 +36,6 @@ void DatesEvents::AddDateEvent(Date& _date, string event, string path)
 			cout << "with event: " << event << endl;
 			break;
 		case 2:
-			//cout << "Event added: " << event << " for date: " << _date.GetDay() << "." <<
-			//	_date.GetMonth() << "." << _date.GetYear() << endl;
 			cout << "Event added: " << event << " for date: ";
 			PrintSliceDate(_date.GetDay(), false);
 			PrintSliceDate(_date.GetMonth(), false);
@@ -48,29 +44,27 @@ void DatesEvents::AddDateEvent(Date& _date, string event, string path)
 			break;
 		}
 
-		UpdateTextFile(path); //обновление текстового файла
+		UpdateTextFile(); //обновление текстового файла
 	}
 }
 
 //Удаление одного события у выбранной даты
-void DatesEvents::DeletEventDate(Date& _date, string& event, string path)
+void DatesEvents::DeletEventDate(Date& _date, string& event)
 {
 	//Поиск и удаление события для конкретной даты
 	auto delEvent = find(DateEvents[_date].begin(), DateEvents[_date].end(), event);
 	if (delEvent != DateEvents[_date].end())
 	{
 		DateEvents[_date].erase(delEvent);
-		//cout << "Event deleted: " << event << " from date: " << _date.GetDay() << "." <<
-		//	_date.GetMonth() << "." << _date.GetYear() << endl;
 		cout << "Event deleted: " << event << " from date: ";
 		PrintSliceDate(_date.GetDay(), false);
 		PrintSliceDate(_date.GetMonth(), false);
 		PrintSliceDate(_date.GetYear(), true);
 		cout << endl;
+
 		if (DateEvents[_date].empty())
 		{
 			DateEvents.erase(_date); //удаление объекта data, если у него нет событий
-			//cout << "Date deleted: " << _date.GetDay() << "." << _date.GetMonth() << "." << _date.GetYear() << endl;
 			cout << "Date deleted: ";
 			PrintSliceDate(_date.GetDay(), false);
 			PrintSliceDate(_date.GetMonth(), false);
@@ -85,11 +79,11 @@ void DatesEvents::DeletEventDate(Date& _date, string& event, string path)
 	}
 
 	//обновление текстового файла
-	UpdateTextFile(path);
+	UpdateTextFile();
 }
 
 //Удаление выбранной даты вместе со всеми событиями
-void DatesEvents::DeleteDate(Date& _date, string path)
+void DatesEvents::DeleteDate(Date& _date)
 {
 	//Поиск и удаление даты из словаря
 	auto delDate{ find_if(DateEvents.begin(), DateEvents.end(), [_date](const pair<Date, vector<string>>& dEv)
@@ -98,7 +92,6 @@ void DatesEvents::DeleteDate(Date& _date, string path)
 	if (delDate != DateEvents.end())
 	{
 		DateEvents.erase(delDate);
-		//cout << "Date deleted: " << _date.GetDay() << "." << _date.GetMonth() << "." << _date.GetYear() << endl;
 		cout << "Date deleted: ";
 		PrintSliceDate(_date.GetDay(), false);
 		PrintSliceDate(_date.GetMonth(), false);
@@ -112,11 +105,11 @@ void DatesEvents::DeleteDate(Date& _date, string path)
 	}
 
 	//обновление текстового файла
-	UpdateTextFile(path);
+	UpdateTextFile();
 }
 
 //Поиск даты и вывод всех её событий
-void DatesEvents::findDateEvents(const Date& _date)
+void DatesEvents::FindDateEvents(const Date& _date)
 {
 	auto FindDate{ find_if(DateEvents.begin(), DateEvents.end(),
 		[_date](const pair<Date, vector<string>>& dEv)
@@ -131,8 +124,6 @@ void DatesEvents::findDateEvents(const Date& _date)
 		//Перед выводом событий их нужно отсортировать
 		sort(FindDate->second.begin(), FindDate->second.end());
 
-		//cout << "Find Date = " << FindDate->first.GetDay() << "." <<
-		//	FindDate->first.GetMonth() << "." << FindDate->first.GetYear() << endl;
 		cout << "Find Date = ";
 		PrintSliceDate(FindDate->first.GetDay(), false);
 		PrintSliceDate(FindDate->first.GetMonth(), false);
@@ -143,13 +134,11 @@ void DatesEvents::findDateEvents(const Date& _date)
 		{
 			cout << " " << strEv << endl;
 		}
-
 	}
-
 }
 
 //Загрузка данных из файла в словарь
-void DatesEvents::LoadDataFileInMap(const string& path)
+void DatesEvents::LoadDataFileInMap()
 {
 	ifstream input(path);
 	if (input)
@@ -167,13 +156,13 @@ void DatesEvents::LoadDataFileInMap(const string& path)
 			iss >> month;
 			iss >> year;
 			Date date1(day, month, year);
-			AddDateEvent(date1, _event1, path); //добавление дат и их событий из файла
+			AddDateEvent(date1, _event1); //добавление дат и их событий из файла
 		}
 	}
 }
 
 //Обновить порядок дат и событий файла в соответствии со словарем
-void DatesEvents::UpdateTextFile(const string& path)
+void DatesEvents::UpdateTextFile()
 {
 	ofstream output;
 	output.open(path); //перезапись файла
@@ -183,14 +172,7 @@ void DatesEvents::UpdateTextFile(const string& path)
 		{
 			for (auto cur_event : cur_data.second)
 			{
-				//output << cur_event << " " << cur_data.first.GetDay() << " " << cur_data.first.GetMonth() << " " << cur_data.first.GetYear() << endl;
 				output << cur_event << " ";
-				//if (cur_data.first.GetDay() < 10) { output << "0" << cur_data.first.GetDay() << " "; }
-				//else { output << cur_data.first.GetDay() << " "; }
-				//if (cur_data.first.GetMonth() < 10) { output << "0" << cur_data.first.GetMonth() << " "; }
-				//else { output << cur_data.first.GetMonth() << " "; }
-				//if (cur_data.first.GetYear() < 10) { output << "0" << cur_data.first.GetYear() << endl; }
-				//else { output << cur_data.first.GetYear() << endl; }
 				WriteFileSliceDate(cur_data.first.GetDay(), output);
 				WriteFileSliceDate(cur_data.first.GetMonth(), output);
 				WriteFileSliceDate(cur_data.first.GetYear(), output);
@@ -201,7 +183,7 @@ void DatesEvents::UpdateTextFile(const string& path)
 	output.close();
 }
 
-void ReadFileInConsole(const string& path)
+void DatesEvents::ReadFileInConsole()
 {
 	ifstream input(path);
 	if (input)
@@ -216,9 +198,21 @@ void ReadFileInConsole(const string& path)
 			iss >> month;
 			iss >> year;
 			cout << event << " " << day << "." << month << "." << year << endl;
-			//if (day < "10") { cout << "d1 " << endl; }
-			//else { cout << "d2 = " << day << endl; }
 		}
 	}
 }
 
+void DatesEvents::PrintSliceDate(uint16_t slice_date, bool end)
+{
+	char point = '.';
+	if (end) { point = ' '; }
+
+	if (slice_date < 10) { cout << "0" << slice_date << point; }
+	else { cout << slice_date << point; }
+}
+
+void DatesEvents::WriteFileSliceDate(uint16_t slice_date, ofstream& ofs)
+{
+	if (slice_date < 10) { ofs << "0" << slice_date << " "; }
+	else { ofs << slice_date << " "; }
+}
