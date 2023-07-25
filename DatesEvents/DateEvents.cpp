@@ -1,61 +1,75 @@
 #include "DateEvents.h"
 
-//Р”РѕР±Р°РІР»РµРЅРёРµ СЃРѕР±С‹С‚РёСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ РґР°С‚С‹
-void DatesEvents::AddDateEvent(Date&_date, string event, string path)
+//Добавление события для определенной даты
+void DatesEvents::AddDateEvent(Date& _date, string event)
 {
-	int resultAdd = 0; //СЃР»РѕРІР°СЂСЊ Р±РµР· РёР·РјРµРЅРµРЅРёСЏ
+	int resultAdd = 0; //словарь без изменения
 	auto newDate = DateEvents.find(_date);
 
-	if (newDate == DateEvents.end()) //РЅРµС‚ С‚Р°РєРѕР№ РґР°С‚С‹
+	if (newDate == DateEvents.end()) //нет такой даты
 	{
-		DateEvents[_date].push_back(event); //РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІРѕР№ РґР°С‚С‹ Рё СЃРѕР±С‹С‚РёСЏ
-		resultAdd = 1;
+		DateEvents[_date].push_back(event); //добавление новой даты и события
+		resultAdd = 1; //добавлена дата
 	}
-	else //СѓР¶Рµ РµСЃС‚СЊ РґР°С‚Р°
+	else //уже есть дата
 	{
 		auto newEvent = find(DateEvents[_date].begin(), DateEvents[_date].end(), event);
 		if (newEvent == DateEvents[_date].end())
 		{
-			DateEvents[_date].push_back(event); //РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІРѕРіРѕ СЃРѕР±С‹С‚РёСЏ
-			resultAdd = 2;
+			DateEvents[_date].push_back(event); //добавление нового события
+			resultAdd = 2; //добавлено событие
 		}
 	}
 
-	if (path != "") //РґРѕР±Р°РІР»РµРЅРёРµ РІ С„Р°Р№Р» РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ
+	if (path != "") //добавление в файл
 	{
 		switch (resultAdd)
 		{
-		case 0: 
+		case 0:
 			cout << "Event alredy added" << endl;
 			return;
-		case 1: 
-			cout << "Date added: " << _date.day << "." << _date.month << "." << _date.year <<
-				" with event: " << event << endl;
+		case 1:
+			cout << "Date added: ";
+			PrintSliceDate(_date.GetDay(),false);
+			PrintSliceDate(_date.GetMonth(), false);
+			PrintSliceDate(_date.GetYear(), true);
+			cout << "with event: " << event << endl;
 			break;
-		case 2: 
-			cout << "Event added: " << event  << " for date: " << _date.day << "." << 
-				_date.month << "." << _date.year << endl;
+		case 2:
+			cout << "Event added: " << event << " for date: ";
+			PrintSliceDate(_date.GetDay(), false);
+			PrintSliceDate(_date.GetMonth(), false);
+			PrintSliceDate(_date.GetYear(), true);
+			cout << endl;
 			break;
 		}
 
-		UpdateTextFile(path); //РѕР±РЅРѕРІР»РµРЅРёРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°
+		UpdateTextFile(); //обновление текстового файла
 	}
 }
 
-//РЈРґР°Р»РµРЅРёРµ РѕРґРЅРѕРіРѕ СЃРѕР±С‹С‚РёСЏ Сѓ РІС‹Р±СЂР°РЅРЅРѕР№ РґР°С‚С‹
-void DatesEvents::DeletEventDate(Date&_date, string& event, string path)
+//Удаление одного события у выбранной даты
+void DatesEvents::DeletEventDate(Date& _date, string& event)
 {
-	//РџРѕРёСЃРє Рё СѓРґР°Р»РµРЅРёРµ СЃРѕР±С‹С‚РёСЏ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕР№ РґР°С‚С‹
+	//Поиск и удаление события для конкретной даты
 	auto delEvent = find(DateEvents[_date].begin(), DateEvents[_date].end(), event);
 	if (delEvent != DateEvents[_date].end())
 	{
 		DateEvents[_date].erase(delEvent);
-		cout << "Event deleted: " << event << " from date: " << _date.day << "." <<
-			_date.month << "." << _date.year << endl;
+		cout << "Event deleted: " << event << " from date: ";
+		PrintSliceDate(_date.GetDay(), false);
+		PrintSliceDate(_date.GetMonth(), false);
+		PrintSliceDate(_date.GetYear(), true);
+		cout << endl;
+
 		if (DateEvents[_date].empty())
 		{
-			DateEvents.erase(_date); //СѓРґР°Р»РµРЅРёРµ РѕР±СЉРµРєС‚Р° data, РµСЃР»Рё Сѓ РЅРµРіРѕ РЅРµС‚ СЃРѕР±С‹С‚РёР№
-			cout << "Date deleted: " << _date.day << "." << _date.month << "." << _date.year << endl;
+			DateEvents.erase(_date); //удаление объекта data, если у него нет событий
+			cout << "Date deleted: ";
+			PrintSliceDate(_date.GetDay(), false);
+			PrintSliceDate(_date.GetMonth(), false);
+			PrintSliceDate(_date.GetYear(), true);
+			cout << endl;
 		}
 	}
 	else
@@ -64,21 +78,25 @@ void DatesEvents::DeletEventDate(Date&_date, string& event, string path)
 		return;
 	}
 
-	//РѕР±РЅРѕРІР»РµРЅРёРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°
-	UpdateTextFile(path);
+	//обновление текстового файла
+	UpdateTextFile();
 }
 
-//РЈРґР°Р»РµРЅРёРµ РІС‹Р±СЂР°РЅРЅРѕР№ РґР°С‚С‹ РІРјРµСЃС‚Рµ СЃРѕ РІСЃРµРјРё СЃРѕР±С‹С‚РёСЏРјРё
-void DatesEvents::DeleteDate(Date&_date, string path)
+//Удаление выбранной даты вместе со всеми событиями
+void DatesEvents::DeleteDate(Date& _date)
 {
-	//РџРѕРёСЃРє Рё СѓРґР°Р»РµРЅРёРµ РґР°С‚С‹ РёР· СЃР»РѕРІР°СЂСЏ
+	//Поиск и удаление даты из словаря
 	auto delDate{ find_if(DateEvents.begin(), DateEvents.end(), [_date](const pair<Date, vector<string>>& dEv)
 	{return dEv.first == _date; }) };
 
 	if (delDate != DateEvents.end())
 	{
-		DateEvents.erase(delDate); 
-		cout << "Date deleted: " << _date.day << "." << _date.month << "." << _date.year << endl;
+		DateEvents.erase(delDate);
+		cout << "Date deleted: ";
+		PrintSliceDate(_date.GetDay(), false);
+		PrintSliceDate(_date.GetMonth(), false);
+		PrintSliceDate(_date.GetYear(), true);
+		cout << endl;
 	}
 	else
 	{
@@ -86,12 +104,12 @@ void DatesEvents::DeleteDate(Date&_date, string path)
 		return;
 	}
 
-	//РѕР±РЅРѕРІР»РµРЅРёРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р°
-	UpdateTextFile(path);
+	//обновление текстового файла
+	UpdateTextFile();
 }
 
-//РџРѕРёСЃРє РґР°С‚С‹ Рё РІС‹РІРѕРґ РІСЃРµС… РµС‘ СЃРѕР±С‹С‚РёР№
-void DatesEvents::findDateEvents(const Date& _date)
+//Поиск даты и вывод всех её событий
+void DatesEvents::FindDateEvents(const Date& _date)
 {
 	auto FindDate{ find_if(DateEvents.begin(), DateEvents.end(),
 		[_date](const pair<Date, vector<string>>& dEv)
@@ -103,29 +121,30 @@ void DatesEvents::findDateEvents(const Date& _date)
 	}
 	else
 	{
-		//РџРµСЂРµРґ РІС‹РІРѕРґРѕРј СЃРѕР±С‹С‚РёР№ РёС… РЅСѓР¶РЅРѕ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ
+		//Перед выводом событий их нужно отсортировать
 		sort(FindDate->second.begin(), FindDate->second.end());
 
-		cout << "Find Date = " << FindDate->first.day << "." <<
-			FindDate->first.month << "." << FindDate->first.year << endl;
+		cout << "Find Date = ";
+		PrintSliceDate(FindDate->first.GetDay(), false);
+		PrintSliceDate(FindDate->first.GetMonth(), false);
+		PrintSliceDate(FindDate->first.GetYear(), true);
+		cout << endl;
 		cout << "Events: " << endl;
 		for (string strEv : FindDate->second)
 		{
 			cout << " " << strEv << endl;
 		}
-
 	}
-
 }
 
-//Р—Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РёР· С„Р°Р№Р»Р° РІ СЃР»РѕРІР°СЂСЊ
-void DatesEvents::LoadDataFileInMap(const string& path)
+//Загрузка данных из файла в словарь
+void DatesEvents::LoadDataFileInMap()
 {
 	ifstream input(path);
 	if (input)
 	{
 		string line;
-		string path = ""; //РїСѓСЃС‚РѕР№ РїСѓС‚СЊ, С‡С‚РѕР±С‹ РЅРµ РїРµСЂРµРїРёСЃС‹РІР°С‚СЊ С„Р°Р№Р»
+		string path = ""; //пустой путь, чтобы не переписывать файл
 		while (getline(input, line))
 		{
 			string _event1;
@@ -136,26 +155,64 @@ void DatesEvents::LoadDataFileInMap(const string& path)
 			iss >> day;
 			iss >> month;
 			iss >> year;
-			Date date1 = { Day(day), Month(month), Year(year) };
-			AddDateEvent(date1, _event1, path); //РґРѕР±Р°РІР»РµРЅРёРµ РґР°С‚ Рё РёС… СЃРѕР±С‹С‚РёР№ РёР· С„Р°Р№Р»Р°
+			Date date1(day, month, year);
+			AddDateEvent(date1, _event1); //добавление дат и их событий из файла
 		}
 	}
 }
 
-//РћР±РЅРѕРІРёС‚СЊ РїРѕСЂСЏРґРѕРє РґР°С‚ Рё СЃРѕР±С‹С‚РёР№ С„Р°Р№Р»Р° РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃРѕ СЃР»РѕРІР°СЂРµРј
-void DatesEvents::UpdateTextFile(const string& path)
+//Обновить порядок дат и событий файла в соответствии со словарем
+void DatesEvents::UpdateTextFile()
 {
 	ofstream output;
-	output.open(path); //РїРµСЂРµР·Р°РїРёСЃСЊ С„Р°Р№Р»Р°
+	output.open(path); //перезапись файла
 	if (output.is_open())
 	{
 		for (auto cur_data : DateEvents)
 		{
 			for (auto cur_event : cur_data.second)
 			{
-				output << cur_event << " " << cur_data.first.day << " " << cur_data.first.month << " " << cur_data.first.year << endl;
+				output << cur_event << " ";
+				WriteFileSliceDate(cur_data.first.GetDay(), output);
+				WriteFileSliceDate(cur_data.first.GetMonth(), output);
+				WriteFileSliceDate(cur_data.first.GetYear(), output);
+				output << endl;
 			}
 		}
 	}
 	output.close();
+}
+
+void DatesEvents::ReadFileInConsole()
+{
+	ifstream input(path);
+	if (input)
+	{
+		string line;
+		string event, day, month, year;
+		while (getline(input, line))
+		{
+			istringstream iss(line); //поток для разбиения строки файла
+			iss >> event;
+			iss >> day;
+			iss >> month;
+			iss >> year;
+			cout << event << " " << day << "." << month << "." << year << endl;
+		}
+	}
+}
+
+void DatesEvents::PrintSliceDate(uint16_t slice_date, bool end)
+{
+	char point = '.';
+	if (end) { point = ' '; }
+
+	if (slice_date < 10) { cout << "0" << slice_date << point; }
+	else { cout << slice_date << point; }
+}
+
+void DatesEvents::WriteFileSliceDate(uint16_t slice_date, ofstream& ofs)
+{
+	if (slice_date < 10) { ofs << "0" << slice_date << " "; }
+	else { ofs << slice_date << " "; }
 }

@@ -1,92 +1,24 @@
-struct Day {
-	int value;
-	explicit Day(int new_value) { //добавили explicit, чтобы неявно конструктор не вызывался
-		value = new_value; //это покажет, где: день, месяц или год.
-	}
-};
+#include <cstdint>
 
-struct Month {
-	int value;
-	explicit Month(int new_value) {
-		value = new_value;
-	}
-};
-
-struct Year {
-	int value;
-	explicit Year(int new_value) {
-		value = new_value;
-	}
-};
-
-
-struct Date
+class Date
 {
-	int day;
-	int month;
-	int year;
+public:
+	Date();
+	Date(uint16_t new_day, uint16_t new_month, uint16_t new_year);
 
-	Date()
-	{
-		day = 0;
-		month = 0;
-		year = 0;
-	}
-	Date(Day new_day, Month new_month, Year new_year)
-	{
-		day = new_day.value;
-		month = new_month.value;
-		year = new_year.value;
-	}
+	Date& operator=(const Date& _date);
+	bool operator==(const Date& _date) const;
+	bool operator<(const Date& date1) const;
 
+	uint16_t GetYear() const;
+	uint16_t GetMonth() const;
+	uint16_t GetDay() const;
 
-	Date& operator=(const Date& _date)
-	{
-		if (this == &_date) {
-			return *this;
-		}
-		day = _date.day;
-		month = _date.month;
-		year = _date.year;
-		return *this;
-	}
-	bool operator==(const Date& _date)
-	{
-		if (this == &_date) {
-			return true;
-		}
-		else if (day == _date.day && month == _date.month && year == _date.year)
-		{
-			return true;
-		}
-		else return false;
+	//�������� ������������ ����
+	static bool VerificDate(uint16_t day, uint16_t month, uint16_t year);
 
-	}
-	bool operator==(const Date& _date) const
-	{
-		if (this == &_date) {
-			return true;
-		}
-		else if (day == _date.day && month == _date.month && year == _date.year)
-		{
-			return true;
-		}
-		else return false;
-
-	}
-
-	bool operator<(const Date& date1) const
-	{
-		if (year == date1.year)
-		{
-			if (month == date1.month)
-			{
-				return day < date1.day;
-			}
-			else return month < date1.month;
-		}
-		else return year < date1.year;
-	}
-
+private:
+	uint16_t day;
+	uint16_t month;
+	uint16_t year;
 };
-

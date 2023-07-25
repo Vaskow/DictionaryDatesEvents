@@ -1,40 +1,15 @@
 ﻿#include "DateEvents.h"
 
-
-void ReadFileInConsole(const string& path)
-{
-	ifstream input(path);
-	if (input)
-	{
-		string line;
-		string event, day, month, year;
-		while (getline(input, line))
-		{
-			istringstream iss(line); //поток для разбиения строки файла
-			iss >> event;
-			iss >> day;
-			iss >> month;
-			iss >> year;
-			cout << event << " " << day << "." << month << "." << year << endl;
-		}
-	}
-}
-
-
 int main()
 {
 	setlocale(LC_ALL, "ru");
-	
-	// Поток для работы с файлом
+
+	//Путь до файла
 	const string path = "Date_Base1.txt";
-	ofstream output;
-	output.open(path, ios::app); //std::ios::app позволяет дописывать, а не переписывать
-
-	// Массив дат и их событий
-	DatesEvents datesEvents;
-
-	datesEvents.LoadDataFileInMap(path); //Считывание данных из файла
+	//Создание массива дат и их событий
+	DatesEvents datesEvents(path);
 	
+	cout << endl;
 
 	cout << "Доступные функции (формат даты: день.месяц.год): " << endl <<
 		" Для добавления события ввести: Add Дата Событие" << endl <<
@@ -52,7 +27,6 @@ int main()
 		cout << "Введите команду: " << endl;
 		getline(cin, cmd);
 
-		
 		if (cmd == "" || cmd == " ")
 		{
 			continue;
@@ -64,12 +38,11 @@ int main()
 		}
 		else if (cmd == "Print")
 		{
-			ReadFileInConsole(path);
+			datesEvents.ReadFileInConsole();
 			continue;
 		}
-		
+
 		string typeCmd, dateCmd, eventCmd;
-		int day = 0, month = 0, year = 0;
 
 		istringstream iss(cmd); //поток для разбиения команды
 		iss >> typeCmd;
@@ -79,43 +52,62 @@ int main()
 		if (typeCmd != "Add" && typeCmd != "Del" && typeCmd != "Find")
 		{
 			cout << "Unknown command" << endl;
+			continue;
 		}
 
-		stringstream ss1(dateCmd); //поток для разделения даты на составляющие
-		vector <string> dateSplit;
-		string numDate;
-		while (getline(ss1, numDate, '.'))
+		if (typeCmd == "Add" && (eventCmd == "" || eventCmd == " "))
 		{
-			dateSplit.push_back(numDate);
+			cout << "Введено пустое событие" << endl;
+			continue;
 		}
-		day = stoi(dateSplit[0]);
-		month = stoi(dateSplit[1]);
-		year = stoi(dateSplit[2]);
+		
+		int startSubStr = 0;
+		int endSubStr = 0;
+		int indArr = 0;
+		array<int, 3> arrDate{0};
+		for (int i = 0; i < dateCmd.size(); ++i)
+		{
+			if (dateCmd[i] == '.')
+			{
+				endSubStr = i;
+				arrDate.at(indArr) = stoi(dateCmd.substr(startSubStr, endSubStr));
+				startSubStr = i+1;
+				indArr++;
+			}
+			if (indArr == 2)
+			{
+				arrDate.at(indArr) = stoi(dateCmd.substr(startSubStr, string::npos));
+				break;
+			}
+		}
 
-		//cout << "Test: " << typeCmd << " " << day << " " << month << " " << year << " " << eventCmd << endl;
 		cout << endl;
 
-		Date date1 = { Day(day), Month(month), Year(year) };
+		bool goodDate = Date::VerificDate(arrDate[0], arrDate[1], arrDate[2]);
+
+		if (goodDate == false)
+		{
+			cout << "Введите правильную дату" << endl;
+			continue;
+		}
+
+		Date date(arrDate[0], arrDate[1], arrDate[2]);
 
 		if (typeCmd == "Add")
 		{
-			datesEvents.AddDateEvent(date1, eventCmd, path);
+			datesEvents.AddDateEvent(date, eventCmd);
 		}
 		else if (typeCmd == "Del" && eventCmd != "")
 		{
-			datesEvents.DeletEventDate(date1, eventCmd, path);
+			datesEvents.DeletEventDate(date, eventCmd);
 		}
 		else if (typeCmd == "Del" && eventCmd == "")
 		{
-			datesEvents.DeleteDate(date1, path);
+			datesEvents.DeleteDate(date);
 		}
 		else if (typeCmd == "Find")
 		{
-			datesEvents.findDateEvents(date1);
+			datesEvents.FindDateEvents(date);
 		}
 	}
-
-	output.close();
-
-
 }
